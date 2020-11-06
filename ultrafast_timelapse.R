@@ -3,9 +3,9 @@ nb_frames <- 25 * nb_seconds
 basedir <- "/mnt/big/nick/cams"
 noon_hour <- 13
 args <- commandArgs(trailingOnly=TRUE)
-if (!exists("camID")) camID <- args[1]
-indir <- sprintf("%s/%s", basedir, camID)
+if (!exists("indir")) indir <- args[1]
 if (!exists("filtermode")) filtermode <- args[2] # full / summer
+camID <- basename(indir)
 outdir <- sprintf("tl_%s_%s", filtermode, camID)
 writeLines(sprintf("Outdir: %s", outdir))
 dir.create(outdir, showWarnings = FALSE)
@@ -16,8 +16,13 @@ if (file.exists(cachefile)) {
 	images <- data.frame(datei = list.files(indir, pattern="jpg"), stringsAsFactors=FALSE)
 	images$pfad <- sprintf("%s/%s", indir, images$datei)
 	images$filesize <- file.info(images$pfad)$size
-	images$unixtime <- as.integer(sub(".jpg", "", images$datei))
-	images$timestamp <- as.POSIXct(images$unixtime, origin="1970-01-01")
+	if (sum(grepl("_", images$datei)) > 0) {
+		images$timestamp <- as.POSIXct(sub("netcam", "", images$datei), tz="", "%Y%m%d_%H%M%S")
+		images$unixtime <- as.numeric(images$timestamp)
+	} else {
+		images$unixtime <- as.integer(sub(".jpg", "", images$datei))
+		images$timestamp <- as.POSIXct(images$unixtime, origin="1970-01-01")
+	}
 	images$date <- as.Date(images$timestamp)
 	images$stunde <- as.numeric(format(images$timestamp, "%H")) + as.numeric(format(images$timestamp, "%M")) / 60
 	images$jahr <- as.numeric(format(images$timestamp, "%Y"))
