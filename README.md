@@ -6,6 +6,6 @@ One solution is to divide the images into packets and pick an initial image and 
 This eliminates the need to compare (determine some sort of distance) all images to every image, which would take too long, 
 but would enable finding the optimal timelapse as a travelling salesman problem. 
 Ideally, days could be used as packets for shorter timespans, but 8 years is 2920 days, which is a lot more than the 250 required images. 
-So this program tries to find the optimal packet size (in number of days) and the number of images required from each packet,
+So this program tries to find the optimal packet size (in number of days) and the number of images required from each packet, and then select the most smooth timelapse sequence. The initial image is selected by taking the one with the largest filesize in the first packet.
 
 Images have to be named as the unixtime of their creation (1493722274.jpg) or date_time (20190221_114151.jpg).
