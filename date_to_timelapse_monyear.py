@@ -24,7 +24,8 @@ def draw_date(img,txs):
 start_time=time.time()
 is_jpeg=lambda x : x.endswith('.jpg')
 photos=sorted(filter(is_jpeg,os.listdir(startDir)))
-getTime=lambda x : int(filter(lambda y : y in string.digits,os.path.basename(x)))
+if '_' in photos[0]: getTime=lambda x : int(time.mktime(time.strptime(x, '%Y%m%d_%H%M%S')))
+else: getTime=lambda x : int(filter(lambda y : y in string.digits,os.path.basename(x)))
 for f in photos:
  fn='%s/%s' % (startDir,f)
  t=getTime(os.path.splitext(f)[0])
