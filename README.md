@@ -1,5 +1,5 @@
-# ultrafast_timelapse
-Timelapse with fewer frames than days in source images.
+# Ultrafast Timelapse: Timelapse with fewer frames than days
+
 For example: You have 500000 images taken at regular intervals in a period of 8 years and want to create a timelapse of 10 seconds. At 25fps this is 250 images.
 Why not just randomly sample the required images? Because this will not be a "smooth" timelapse, because some images are more similar, mostly because of the weather and illumination.
 One solution is to divide the images into packets and pick an initial image and search for the most similar in the first packet, then find the most similar in the next packet, and so on.
