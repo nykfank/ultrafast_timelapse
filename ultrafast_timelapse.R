@@ -1,7 +1,7 @@
 args <- commandArgs(trailingOnly=TRUE)
 if (!exists("indir")) indir <- args[1]
 if (!exists("filtermode")) filtermode <- args[2] # full / summer
-if (!exists("nb_seconds")) nb_seconds <- args[3] # 10
+if (!exists("nb_seconds")) nb_seconds <- as.integer(args[3]) # 10
 
 nb_frames <- 25 * nb_seconds
 noon_hour <- 13
