@@ -6,7 +6,8 @@ if (!exists("nb_seconds")) nb_seconds <- as.integer(args[3]) # 10
 nb_frames <- 25 * nb_seconds
 noon_hour <- 13
 camID <- basename(indir)
-outdir <- sprintf("tl_%s_%s", filtermode, camID)
+outdir <- sprintf("/tmp/tl_%s_%s", filtermode, camID)
+video_output <- sprintf("tl_%s_%s.mp4", filtermode, camID)
 writeLines(sprintf("Outdir: %s (%d seconds)", outdir, nb_seconds))
 dir.create(outdir, showWarnings = FALSE)
 images <- data.frame(datei = list.files(indir, pattern="jpg"), stringsAsFactors=FALSE)
@@ -132,7 +133,7 @@ cmd <- sprintf("date_to_timelapse_monyear.py %s_median3", outdir)
 writeLines(cmd)
 system(cmd)
 
-cmd <- sprintf("ffmpeg -hide_banner -loglevel panic -y -framerate 25 -pattern_type glob -i '%s_median3/*.jpg' -codec:v libx264 -crf 18 -profile:v main %s.mp4", outdir, outdir)
+cmd <- sprintf("ffmpeg -hide_banner -loglevel panic -y -framerate 25 -pattern_type glob -i '%s_median3/*.jpg' -codec:v libx264 -crf 18 -profile:v main %s", outdir, video_output)
 writeLines(cmd)
 system(cmd)
 
