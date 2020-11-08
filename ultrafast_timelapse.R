@@ -46,8 +46,19 @@ while (length(blocksize) == 0) {
 	blocksize <- suitable_divisors(nb_days)
 }
 blocksize <- max(blocksize)
-if (nb_days != length(days)) stop("todo: remove days with least number of images")
 nb_blocks <- nb_days / blocksize
+
+# Remove days with least number of images
+if (nb_days != length(days)) {
+	dayocc <- as.data.frame.table(table(subimg$date))
+	dayocc <- dayocc[order(dayocc$Freq),]
+	nb_remdays <- length(days) - nb_days
+	remdays <- as.Date(dayocc[1:nb_remdays, "Var1"])
+	nb_remimgs <- sum(dayocc[1:nb_remdays, "Freq"])
+	subimg <- subimg[!subimg$date %in% remdays,]
+	days <- sort(unique(subimg$date))
+	writeLines(sprintf("Removed %d days containing %d images", nb_remdays, nb_remimgs))
+}
 
 # Determine number of images per block
 imgs_per_block <- round(nb_frames / nb_blocks)
