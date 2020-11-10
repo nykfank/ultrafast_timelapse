@@ -1,3 +1,4 @@
+dyn.load("lumicomp.so")
 args <- commandArgs(trailingOnly=TRUE)
 if (!exists("indir")) indir <- args[1]
 if (!exists("filtermode")) filtermode <- args[2] # full / summer
@@ -7,7 +8,7 @@ nb_frames <- 25 * nb_seconds
 noon_hour <- 13
 camID <- basename(indir)
 outdir <- sprintf("/tmp/tl_%s_%s", filtermode, camID)
-video_output <- sprintf("tl_%s_%s.mp4", filtermode, camID)
+video_output <- sprintf("tl_%s_%s_lumi.mp4", filtermode, camID)
 writeLines(sprintf("Outdir: %s (%d seconds)", outdir, nb_seconds))
 dir.create(outdir, showWarnings = FALSE)
 images <- data.frame(datei = list.files(indir, pattern="jpg"), stringsAsFactors=FALSE)
@@ -27,6 +28,7 @@ images$monat <- as.numeric(format(images$timestamp, "%m"))
 images$midiff <- abs(noon_hour - images$stunde)
 images <- images[images$date < Sys.Date(),] # Images from the future are not plausible
 if (filtermode == "summer") subimg <- images[images$monat %in% 4:10 & images$midiff < 2,]
+if (filtermode == "winter") subimg <- images[!images$monat %in% 4:10 & images$midiff < 2,]
 if (filtermode == "noon") subimg <- images[images$midiff < 2,]
 if (filtermode == "none") subimg <- images
 writeLines(sprintf("images = %d, days = %d, filtered_images = %d, filtered_days = %d", nrow(images), length(unique(images$date)), nrow(subimg), length(unique(subimg$date))))
@@ -78,9 +80,8 @@ writeLines(sprintf("Initial image: %s", init_img))
 subimg[subimg$pfad == init_img, "Auswahl"] <- TRUE
 writeLines(sprintf("First pack: %d images", nrow(selimgs)))
 for (i in 2:nrow(selimgs)) {
-	cmd <- sprintf("image_histogram_distance_rgb.py %s %s", init_img, selimgs[i, "pfad"])
-	d <- as.numeric(system(cmd, intern=TRUE))
-	if (length(d) == 1) selimgs[i, "distance"] <- d
+	lcr <- .C("lumi_compare", filename1=init_img, filename1=selimgs[i, "pfad"], dist=.Machine$integer.max)
+	selimgs[i, "distance"] <- lcr$dist
 	#writeLines(sprintf("%d/%d: %f", i, nrow(selimgs), selimgs[i, "distance"]))
 }
 
@@ -108,9 +109,8 @@ for (packi in 1:(nb_blocks-1)) {
 	}
 	writeLines(sprintf("%d/%d: %d images", packi, nb_blocks-1, nrow(selimgs)))
 	for (i in 1:nrow(selimgs)) {
-		cmd <- sprintf("image_histogram_distance_rgb.py %s %s", last_img, selimgs[i, "pfad"])
-		d <- as.numeric(system(cmd, intern=TRUE))
-		if (length(d) == 1) selimgs[i, "distance"] <- d
+		lcr <- .C("lumi_compare", filename1=last_img, filename1=selimgs[i, "pfad"], dist=.Machine$integer.max)
+		selimgs[i, "distance"] <- lcr$dist
 		#writeLines(sprintf("%d/%d -> %d/%d: %f", packi, nb_blocks-1, i, nrow(selimgs), selimgs[i, "distance"]))
 	}
 	selimgs <- selimgs[order(selimgs$distance),]
