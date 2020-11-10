@@ -80,7 +80,7 @@ writeLines(sprintf("Initial image: %s", init_img))
 subimg[subimg$pfad == init_img, "Auswahl"] <- TRUE
 writeLines(sprintf("First pack: %d images", nrow(selimgs)))
 for (i in 2:nrow(selimgs)) {
-	lcr <- .C("lumi_compare", filename1=init_img, filename1=selimgs[i, "pfad"], dist=.Machine$integer.max)
+	lcr <- .C("lumi_compare", filename1=init_img, filename2=selimgs[i, "pfad"], dist=.Machine$integer.max)
 	selimgs[i, "distance"] <- lcr$dist
 	#writeLines(sprintf("%d/%d: %f", i, nrow(selimgs), selimgs[i, "distance"]))
 }
@@ -109,7 +109,7 @@ for (packi in 1:(nb_blocks-1)) {
 	}
 	writeLines(sprintf("%d/%d: %d images", packi, nb_blocks-1, nrow(selimgs)))
 	for (i in 1:nrow(selimgs)) {
-		lcr <- .C("lumi_compare", filename1=last_img, filename1=selimgs[i, "pfad"], dist=.Machine$integer.max)
+		lcr <- .C("lumi_compare", filename1=last_img, filename2=selimgs[i, "pfad"], dist=.Machine$integer.max)
 		selimgs[i, "distance"] <- lcr$dist
 		#writeLines(sprintf("%d/%d -> %d/%d: %f", packi, nb_blocks-1, i, nrow(selimgs), selimgs[i, "distance"]))
 	}
